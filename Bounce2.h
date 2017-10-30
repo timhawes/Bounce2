@@ -29,27 +29,18 @@
 #ifndef Bounce2_h
 #define Bounce2_h
 
-// Uncomment the following line for "LOCK-OUT" debounce method
 //#define BOUNCE_LOCK_OUT
-
-// Uncomment the following line for "BOUNCE_WITH_PROMPT_DETECTION" debounce method
 //#define BOUNCE_WITH_PROMPT_DETECTION
-
-#include <inttypes.h>
-
-#ifndef _BV
-#define _BV(n) (1<<(n))
-#endif
 
 class Bounce
 {
- public:
+  public:
     // Create an instance of the bounce library
     Bounce();
 
     // Attach to a pin (and also sets initial state)
     void attach(int pin);
-    
+
     // Attach to a pin (and also sets initial state) and sets pin to mode (INPUT/INPUT_PULLUP/OUTPUT)
     void attach(int pin, int mode);
 
@@ -71,18 +62,29 @@ class Bounce
     bool rose();
 
     // Partial compatibility for programs written with Bounce version 1
-    bool risingEdge() { return rose(); }
-    bool fallingEdge() { return fell(); }
+    bool risingEdge() {
+      return rose();
+    }
+    bool fallingEdge() {
+      return fell();
+    }
     Bounce(uint8_t pin, unsigned long interval_millis ) : Bounce() {
-        attach(pin);
-        interval(interval_millis);
+      attach(pin);
+      interval(interval_millis);
     }
 
- protected:
+  protected:
+    struct State {
+      unsigned int debouncedState : 1;
+      unsigned int unstableState  : 1;
+      unsigned int stateChanged   : 1;
+      unsigned int timerActive    : 1;
+    };
+
     unsigned long previous_millis;
     uint16_t interval_millis;
-    uint8_t state;
     uint8_t pin;
+    State state;
 };
 
 #endif
