@@ -172,9 +172,14 @@ class Bounce
      */
     unsigned long previousDuration();     
 
+    bool heldHigh();
+    bool heldLow();
+    void holdTime(uint16_t hold_millis);
+
  protected:
     unsigned long previous_millis;
     uint16_t interval_millis;
+    uint16_t hold_millis;
     uint8_t state;
     uint8_t pin;
     unsigned long stateChangeLastTime;

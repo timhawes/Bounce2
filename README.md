@@ -1,6 +1,6 @@
 # BOUNCE 2
 
-Debouncing library for Arduino and Wiring by Thomas Ouellet Fredericks with contributions from: Eric Lowry, Jim Schimpf, Tom Harkaway, Joachim Krüger and MrGradgrind.
+Debouncing library for Arduino and Wiring by Thomas Ouellet Fredericks with contributions from: Eric Lowry, Jim Schimpf, Tom Harkaway, Joachim Krüger, MrGradgrind and Tim Hawes.
 
 More about debouncing: http://en.wikipedia.org/wiki/Debounce#Contact_bounce
 

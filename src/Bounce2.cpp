@@ -6,6 +6,7 @@
 static const uint8_t DEBOUNCED_STATE = 0b00000001;
 static const uint8_t UNSTABLE_STATE  = 0b00000010;
 static const uint8_t CHANGED_STATE   = 0b00000100;
+static const uint8_t HELD_STATE      = 0b00001000;
 
 
 Bounce::Bounce()
@@ -50,6 +51,11 @@ bool Bounce::update()
         if ( currentState != getStateFlag(DEBOUNCED_STATE) ) {
             previous_millis = millis();
             changeState();
+        } else if (millis() - stateChangeLastTime > hold_millis) {
+          if (!getStateFlag(HELD_STATE) && !getStateFlag(CHANGED_STATE)) {
+            setStateFlag(HELD_STATE);
+            setStateFlag(CHANGED_STATE);
+          }
         }
     }
     
@@ -68,6 +74,11 @@ bool Bounce::update()
 	// This will be prompt as long as there has been greater than interval_misllis ms since last change of input.
 	// Otherwise debounced state will not change again until bouncing is stable for the timeout period.
 		 changeState();
+      }
+    } else if (millis() - stateChangeLastTime > hold_millis) {
+      if (!getStateFlag(HELD_STATE) && !getStateFlag(CHANGED_STATE)) {
+         setStateFlag(HELD_STATE);
+         setStateFlag(CHANGED_STATE);
       }
     }
 
@@ -98,6 +109,11 @@ bool Bounce::update()
                  
 
                  changeState();
+            } else if (millis() - stateChangeLastTime > hold_millis) {
+                if (!getStateFlag(HELD_STATE) && !getStateFlag(CHANGED_STATE)) {
+                    setStateFlag(HELD_STATE);
+                    setStateFlag(CHANGED_STATE);
+                }
             }
         }
 
@@ -119,6 +135,7 @@ unsigned long Bounce::duration() {
 
 inline void Bounce::changeState() {
 	toggleStateFlag(DEBOUNCED_STATE);
+    unsetStateFlag(HELD_STATE);
 	setStateFlag(CHANGED_STATE) ;
 	durationOfPreviousState = millis() - stateChangeLastTime;
 	stateChangeLastTime = millis();
@@ -131,10 +148,25 @@ bool Bounce::read()
 
 bool Bounce::rose()
 {
-    return getStateFlag(DEBOUNCED_STATE) && getStateFlag(CHANGED_STATE);
+    return getStateFlag(DEBOUNCED_STATE) && getStateFlag(CHANGED_STATE) && !getStateFlag(HELD_STATE);
 }
 
 bool Bounce::fell()
 {
-    return  !getStateFlag(DEBOUNCED_STATE) && getStateFlag(CHANGED_STATE);
+    return  !getStateFlag(DEBOUNCED_STATE) && getStateFlag(CHANGED_STATE) && !getStateFlag(HELD_STATE);
+}
+
+bool Bounce::heldHigh()
+{
+    return getStateFlag(DEBOUNCED_STATE) && getStateFlag(CHANGED_STATE) && getStateFlag(HELD_STATE);
+}
+
+bool Bounce::heldLow()
+{
+    return !getStateFlag(DEBOUNCED_STATE) && getStateFlag(CHANGED_STATE) && getStateFlag(HELD_STATE);
+}
+
+void Bounce::holdTime(uint16_t hold_millis)
+{
+    this->hold_millis = hold_millis;
 }
